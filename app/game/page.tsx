@@ -5,26 +5,35 @@ import React, { useState, useEffect } from 'react';
 import { Heart, Home, RotateCcw, Trophy } from 'lucide-react';
 import Link from 'next/link';
 
+// ✨ FIX 1: Definisikan tipe data untuk sebuah kartu
+interface Card {
+  id: number;
+  imageSrc: string;
+  isFlipped: boolean;
+  isMatched: boolean;
+}
+
 export default function MemoryMatchGame() {
   // ⬇️ *** GANTI DI SINI *** ⬇️
   // Ganti path placeholder ini dengan path ke gambar Anda.
   // Pastikan Anda memiliki 8 path gambar yang unik.
   // Anda bisa letakkan gambar di folder /public/images/
   const uniqueImageSources = [
-    '/game/foto-1.jpg',
-    '/game/foto-2.jpg',
-    '/game/foto-3.jpg',
-    '/game/foto-4.jpg',
-    '/game/foto-5.jpg',
-    '/game/foto-6.jpg',
-    '/game/foto-7.jpg',
-    '/game/foto-8.jpg',
+    '/game-photos/photo1.jpg',
+    '/game-photos/photo2.jpg',
+    '/game-photos/photo3.jpg',
+    '/game-photos/photo4.jpg',
+    '/game-photos/photo5.jpg',
+    '/game-photos/photo6.jpg',
+    '/game-photos/photo7.jpg',
+    '/game-photos/photo8.jpg',
   ];
   // ⬆️ *********************** ⬆️
 
-  const [cards, setCards] = useState([]);
-  const [flippedCards, setFlippedCards] = useState([]);
-  const [matchedCards, setMatchedCards] = useState([]);
+  // ✨ FIX 2: Berikan tipe data yang spesifik pada state
+  const [cards, setCards] = useState<Card[]>([]);
+  const [flippedCards, setFlippedCards] = useState<number[]>([]); // Ini akan berisi array of IDs (number)
+  const [matchedCards, setMatchedCards] = useState<number[]>([]); // Ini juga berisi array of IDs (number)
   const [moves, setMoves] = useState(0);
   const [gameWon, setGameWon] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
@@ -38,7 +47,8 @@ export default function MemoryMatchGame() {
   }, []);
 
   const initializeGame = () => {
-    const cardPairs = [...uniqueImageSources, ...uniqueImageSources] // Menggunakan array gambar
+    // Beri tahu TypeScript bahwa ini adalah array Card
+    const cardPairs: Card[] = [...uniqueImageSources, ...uniqueImageSources]
       .sort(() => Math.random() - 0.5)
       .map((src, index) => ({
         id: index,
@@ -46,14 +56,15 @@ export default function MemoryMatchGame() {
         isFlipped: false,
         isMatched: false,
       }));
-    setCards(cardPairs);
+    setCards(cardPairs); // Sekarang valid, karena setCards mengharapkan Card[]
     setFlippedCards([]);
     setMatchedCards([]);
     setMoves(0);
     setGameWon(false);
   };
 
-  const handleCardClick = (cardId) => {
+  // ✨ FIX 3: Berikan tipe 'number' pada parameter 'cardId'
+  const handleCardClick = (cardId: number) => {
     if (
       isChecking ||
       flippedCards.length === 2 ||
@@ -64,7 +75,7 @@ export default function MemoryMatchGame() {
     }
 
     const newFlippedCards = [...flippedCards, cardId];
-    setFlippedCards(newFlippedCards);
+    setFlippedCards(newFlippedCards); // Valid, karena newFlippedCards adalah number[]
 
     if (newFlippedCards.length === 2) {
       setIsChecking(true);
@@ -74,31 +85,40 @@ export default function MemoryMatchGame() {
       const firstCard = cards.find((card) => card.id === firstId);
       const secondCard = cards.find((card) => card.id === secondId);
 
-      // Memeriksa kecocokan berdasarkan 'imageSrc'
-      if (firstCard.imageSrc === secondCard.imageSrc) {
-        // Match found!
-        setTimeout(() => {
-          setMatchedCards([...matchedCards, firstId, secondId]);
-          setFlippedCards([]);
-          setIsChecking(false);
+      // ✨ FIX 4: Tambahkan pengecekan jika firstCard atau secondCard 'undefined'
+      // Ini untuk mengatasi error "possibly 'undefined'"
+      if (firstCard && secondCard) {
+        // Memeriksa kecocokan berdasarkan 'imageSrc'
+        if (firstCard.imageSrc === secondCard.imageSrc) {
+          // Match found!
+          setTimeout(() => {
+            setMatchedCards([...matchedCards, firstId, secondId]); // Valid
+            setFlippedCards([]);
+            setIsChecking(false);
 
-          // Check if game is won
-          if (matchedCards.length + 2 === cards.length) {
-            setTimeout(() => setGameWon(true), 500);
-          }
-        }, 600);
+            // Check if game is won
+            if (matchedCards.length + 2 === cards.length) {
+              setTimeout(() => setGameWon(true), 500);
+            }
+          }, 600);
+        } else {
+          // No match
+          setTimeout(() => {
+            setFlippedCards([]);
+            setIsChecking(false);
+          }, 1000);
+        }
       } else {
-        // No match
-        setTimeout(() => {
-          setFlippedCards([]);
-          setIsChecking(false);
-        }, 1000);
+        // Fallback jika kartu tidak ditemukan (seharusnya tidak terjadi)
+        setFlippedCards([]);
+        setIsChecking(false);
       }
     }
   };
 
-  const isCardFlipped = (cardId) => {
-    return flippedCards.includes(cardId) || matchedCards.includes(cardId);
+  // ✨ FIX 5: Berikan tipe 'number' pada parameter 'cardId'
+  const isCardFlipped = (cardId: number) => {
+    return flippedCards.includes(cardId) || matchedCards.includes(cardId); // Valid
   };
 
   return (
@@ -168,22 +188,23 @@ export default function MemoryMatchGame() {
 
           {/* Game Board */}
           <div className="grid grid-cols-4 gap-3 md:gap-4 mb-8 max-w-2xl mx-auto">
+            {/* 'card' sekarang otomatis bertipe 'Card' berkat 'cards.map' */}
             {cards.map((card) => (
               <button
                 key={card.id}
-                onClick={() => handleCardClick(card.id)}
-                disabled={isCardFlipped(card.id) || isChecking}
+                onClick={() => handleCardClick(card.id)} // card.id (number) valid
+                disabled={isCardFlipped(card.id) || isChecking} // card.id (number) valid
                 className={`aspect-square rounded-2xl shadow-xl transition-all duration-500 transform hover:scale-105 ${
-                  isCardFlipped(card.id)
+                  isCardFlipped(card.id) // card.id (number) valid
                     ? 'bg-white' // Latar belakang putih saat kartu terbalik (menampilkan foto)
                     : 'bg-gradient-to-br from-amber-200 to-orange-200 hover:from-amber-300 hover:to-orange-300' // Latar belakang kartu tertutup
-                } ${matchedCards.includes(card.id) ? 'opacity-80 scale-95' : ''}`}
+                } ${matchedCards.includes(card.id) ? 'opacity-80 scale-95' : ''}`} // card.id (number) valid
               >
                 <div className="w-full h-full flex items-center justify-center text-4xl md:text-5xl">
-                  {isCardFlipped(card.id) ? (
+                  {isCardFlipped(card.id) ? ( // card.id (number) valid
                     // Menampilkan gambar jika kartu terbalik
                     <img
-                      src={card.imageSrc}
+                      src={card.imageSrc} // card.imageSrc (string) valid
                       alt="Memory Match"
                       className="w-full h-full object-cover rounded-2xl"
                     />
