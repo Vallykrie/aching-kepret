@@ -7,8 +7,6 @@ export default function VintageScrapbook() {
   const [isLoading, setIsLoading] = useState(true);
   const [visiblePhotos, setVisiblePhotos] = useState(new Set());
   const [visibleStrips, setVisibleStrips] = useState(new Set());
-  const [stripPhotoIndex, setStripPhotoIndex] = useState(0);
-  const [isStripAnimating, setIsStripAnimating] = useState(false);
   const stripRef = useRef(null);
 
   // Simulate loading
@@ -51,33 +49,12 @@ export default function VintageScrapbook() {
           const id = entry.target.getAttribute('data-strip-id');
           if (entry.isIntersecting) {
             setVisibleStrips(prev => new Set([...prev, id]));
-            
-            // Start photo strip animation for the first strip
-            if (id === 'strip-1' && !isStripAnimating) {
-              setIsStripAnimating(true);
-              setStripPhotoIndex(0);
-              
-              // Animate photos coming out one by one
-              let currentIndex = 0;
-              const interval = setInterval(() => {
-                currentIndex++;
-                setStripPhotoIndex(currentIndex);
-                if (currentIndex >= 4) {
-                  clearInterval(interval);
-                  setIsStripAnimating(false);
-                }
-              }, 600);
-            }
           } else {
             setVisibleStrips(prev => {
               const newSet = new Set(prev);
               newSet.delete(id);
               return newSet;
             });
-            if (id === 'strip-1') {
-              setStripPhotoIndex(0);
-              setIsStripAnimating(false);
-            }
           }
         });
       },
@@ -86,25 +63,45 @@ export default function VintageScrapbook() {
 
     document.querySelectorAll('[data-photobooth-strip]').forEach(el => observer.observe(el));
     return () => observer.disconnect();
-  }, [isLoading, isStripAnimating]);
+  }, [isLoading]);
 
   if (isLoading) {
     return (
       <div className="fixed inset-0 bg-gradient-to-br from-amber-50 to-orange-100 flex flex-col items-center justify-center z-50">
         <Loader2 className="w-16 h-16 text-amber-700 animate-spin mb-4" />
-        <p className="text-2xl text-amber-800 font-handwriting">Loading your memories...</p>
+        <p className="text-2xl text-amber-800 font-handwriting">Loading our memories 💖...</p>
       </div>
     );
   }
 
   const photos = [
-    { id: 1, rotate: -3, caption: "Add your photo here!" },
-    { id: 2, rotate: 2, caption: "Another sweet moment" },
-    { id: 3, rotate: -4, caption: "Us being cute" },
-    { id: 4, rotate: 1, caption: "Forever & always" },
-    { id: 5, rotate: -2, caption: "Love this day" },
-    { id: 6, rotate: 3, caption: "Best times" },
+    { id: 1, rotate: -3, caption: "kita pertama kali meet up!", imgSrc: "gallery/photo1.png" },
+    { id: 2, rotate: 2, caption: "nemenin kamu ke pasar 😋", imgSrc: "gallery/photo2.jpg" },
+    { id: 3, rotate: -4, caption: "pertama kali ketempat mu", imgSrc: "gallery/photo3.jpg" },
+    { id: 4, rotate: 1, caption: "OFFICIAL! kita pacaran!! 💗💓💕", imgSrc: "gallery/photo4.jpg" },
+    { id: 5, rotate: -2, caption: "menaklukan gunung batur berdua 😝😎", imgSrc: "gallery/photo5.JPEG" },
+    { id: 6, rotate: 3, caption: "Park Shanghai", imgSrc: "gallery/photo6.jpg" },
+    { id: 7, rotate: -3, caption: "mirror photo 📸", imgSrc: "gallery/photo7.jpg" },
+    { id: 8, rotate: 2, caption: "ke cat cafe tapi kamunya lebih lucu", imgSrc: "gallery/photo8.jpg" },
+    { id: 9, rotate: -4, caption: "mirror photo lagi 🤳", imgSrc: "gallery/photo9.jpg" },
+    { id: 10, rotate: 1, caption: "seru banget banyak anjing! 🐶", imgSrc: "gallery/photo10.jpg" },
+    { id: 11, rotate: -2, caption: "my cutie patootie 🥰", imgSrc: "gallery/photo11.jpg" },
   ];
+
+  const photoboothPhotos = {
+    strip1: [
+      "photobox/b1.jpg",
+      "photobox/b2.jpg",
+      "photobox/b2.jpg",
+      "photobox/b2.jpg"
+    ],
+    strip2: [
+      "photobox/a1.JPG",
+      "photobox/a2.JPG",
+      "photobox/a2.JPG",
+      "photobox/a2.JPG"
+    ]
+  };
 
   return (
     <>
@@ -123,21 +120,6 @@ export default function VintageScrapbook() {
         .animate-float {
           animation: float 6s ease-in-out infinite;
         }
-        
-        @keyframes slideFromBottom {
-          from {
-            transform: translateY(100%);
-            opacity: 0;
-          }
-          to {
-            transform: translateY(0);
-            opacity: 1;
-          }
-        }
-        
-        .strip-photo-animate {
-          // animation: slideFromBottom 0.5s ease-out forwards;
-        }
       `}</style>
 
       <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 overflow-x-hidden">
@@ -152,8 +134,8 @@ export default function VintageScrapbook() {
               A Small Digital Gift
             </h1>
             <p className="font-typewriter text-lg md:text-xl text-amber-800 text-center leading-relaxed">
-              for my cute girlfriend ♡<br/>
-              Made with love, just for you
+              for aching kepret<br/>
+              Made with love, <br/>just for you
             </p>
           </div>
           
@@ -192,8 +174,12 @@ export default function VintageScrapbook() {
                 <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-20 h-6 bg-yellow-100/60 border border-amber-300/30 -rotate-3" />
                 
                 {/* Photo */}
-                <div className="w-full aspect-[4/3] bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center text-6xl border-2 border-dashed border-amber-600">
-                  📷
+                <div className="w-full aspect-[4/3] bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center border-2 border-dashed border-amber-600 overflow-hidden">
+                  <img 
+                    src={photo.imgSrc} 
+                    alt={photo.caption}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 
                 {/* Caption */}
@@ -212,12 +198,12 @@ export default function VintageScrapbook() {
           </h2>
           
           <div className="flex flex-wrap gap-8 md:gap-12 justify-center items-end max-w-5xl">
-            {/* Left Strip - With Animation */}
+            {/* Left Strip - Normal Animation */}
             <div
               ref={stripRef}
               data-photobooth-strip
               data-strip-id="strip-1"
-              className={`bg-white p-6 shadow-2xl w-full max-w-[350px] transition-all duration-1000 overflow-hidden ${
+              className={`bg-white p-6 shadow-2xl w-full max-w-[350px] transition-all duration-1000 ${
                 visibleStrips.has('strip-1')
                   ? 'opacity-100 translate-y-0 -rotate-8'
                   : 'opacity-0 translate-y-24 -rotate-8'
@@ -225,16 +211,20 @@ export default function VintageScrapbook() {
             >
               <div className="text-center font-typewriter text-sm text-amber-900 border-b-2 border-black pb-2 mb-4">
                 ★ PHOTOBOOTH ★<br/>
-                [LOCATION] - [DATE]
+                [DENPASAR] - [17 AUGUST 2025]
               </div>
               
-              <div className="flex flex-col gap-4 relative" style={{ minHeight: '600px' }}>
-                {[1, 2, 3, 4].map((num, index) => (
+              <div className="flex flex-col gap-4">
+                {photoboothPhotos.strip1.map((imgSrc, index) => (
                   <div
-                    key={num}
-                    className={`w-full aspect-[3/2] bg-gradient-to-br from-gray-100 to-gray-200 border-4 border-black flex items-center justify-center text-4xl`}
+                    key={index}
+                    className="w-full aspect-[3/2] bg-gradient-to-br from-gray-100 to-gray-200 border-4 border-black overflow-hidden"
                   >
-                    📸
+                    <img 
+                      src={imgSrc} 
+                      alt={`Photobooth strip 1 photo ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                 ))}
               </div>
@@ -252,16 +242,20 @@ export default function VintageScrapbook() {
             >
               <div className="text-center font-typewriter text-sm text-amber-900 border-b-2 border-black pb-2 mb-4">
                 ★ PHOTOBOOTH ★<br/>
-                [LOCATION] - [DATE]
+                [KAYUTANGAN] - [6 NOVEMBER 2025]
               </div>
               
               <div className="flex flex-col gap-4">
-                {[1, 2, 3, 4].map((num) => (
+                {photoboothPhotos.strip2.map((imgSrc, index) => (
                   <div
-                    key={num}
-                    className="w-full aspect-[3/2] bg-gradient-to-br from-gray-100 to-gray-200 border-4 border-black flex items-center justify-center text-4xl"
+                    key={index}
+                    className="w-full aspect-[3/2] bg-gradient-to-br from-gray-100 to-gray-200 border-4 border-black overflow-hidden"
                   >
-                    📸
+                    <img 
+                      src={imgSrc} 
+                      alt={`Photobooth strip 2 photo ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                 ))}
               </div>
@@ -287,21 +281,25 @@ export default function VintageScrapbook() {
             <div className="absolute top-0 left-10 w-0.5 h-full bg-pink-300 opacity-30" />
             
             <div 
-              className="font-handwriting text-xl md:text-2xl text-amber-950 leading-[2.2] min-h-[400px] outline-none"
-              contentEditable
-              suppressContentEditableWarning
-            >
-              Dear [Her Name],
-              <br/><br/>
-              Write your heartfelt message here...
-              <br/><br/>
-              Every moment with you is a treasure I hold close to my heart.
-            </div>
-            
-            <div className="text-right mt-10 font-signature text-3xl md:text-4xl text-amber-900">
-              With all my love,<br/>
-              [Your Name] ♡
-            </div>
+  className="font-handwriting text-xl md:text-2xl text-amber-950 leading-[2.2] min-h-[400px] outline-none"
+  contentEditable
+  suppressContentEditableWarning
+>
+  Dear Aching Kepret,
+  <br/><br/>
+  Happy Birthday, my love!
+  <br/><br/>
+  I hope your day is as beautiful and as bright as you are. May all your wishes come true and may this coming year bring you everything you've been working so hard for. You deserve all the happiness in the world.
+  <br/><br/>
+  I'm so grateful for you... and I truly hope I get to call you my wife someday (hehe).
+  <br/><br/>
+  Every moment with you is a treasure I hold close to my heart.
+</div>
+
+<div className="text-right mt-10 font-signature text-3xl md:text-4xl text-amber-900">
+  With all my love,<br/>
+  Nathan ♡
+</div>
           </div>
         </section>
 
