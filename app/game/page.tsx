@@ -6,6 +6,22 @@ import { Heart, Home, RotateCcw, Trophy } from 'lucide-react';
 import Link from 'next/link';
 
 export default function MemoryMatchGame() {
+  // ⬇️ *** GANTI DI SINI *** ⬇️
+  // Ganti path placeholder ini dengan path ke gambar Anda.
+  // Pastikan Anda memiliki 8 path gambar yang unik.
+  // Anda bisa letakkan gambar di folder /public/images/
+  const uniqueImageSources = [
+    '/game/foto-1.jpg',
+    '/game/foto-2.jpg',
+    '/game/foto-3.jpg',
+    '/game/foto-4.jpg',
+    '/game/foto-5.jpg',
+    '/game/foto-6.jpg',
+    '/game/foto-7.jpg',
+    '/game/foto-8.jpg',
+  ];
+  // ⬆️ *********************** ⬆️
+
   const [cards, setCards] = useState([]);
   const [flippedCards, setFlippedCards] = useState([]);
   const [matchedCards, setMatchedCards] = useState([]);
@@ -13,8 +29,8 @@ export default function MemoryMatchGame() {
   const [gameWon, setGameWon] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
 
-  // Emoji pairs for the memory game
-  const emojis = ['💕', '💖', '💗', '💝', '💘', '🌸', '🌹', '🌺'];
+  // Emojis ini sekarang hanya untuk 'confetti' saat menang
+  const confettiEmojis = ['💕', '💖', '💗', '💝', '💘', '🌸', '🌹', '🌺'];
 
   // Initialize game
   useEffect(() => {
@@ -22,11 +38,11 @@ export default function MemoryMatchGame() {
   }, []);
 
   const initializeGame = () => {
-    const cardPairs = [...emojis, ...emojis]
+    const cardPairs = [...uniqueImageSources, ...uniqueImageSources] // Menggunakan array gambar
       .sort(() => Math.random() - 0.5)
-      .map((emoji, index) => ({
+      .map((src, index) => ({
         id: index,
-        emoji,
+        imageSrc: src, // Mengganti 'emoji' menjadi 'imageSrc'
         isFlipped: false,
         isMatched: false,
       }));
@@ -55,10 +71,11 @@ export default function MemoryMatchGame() {
       setMoves(moves + 1);
 
       const [firstId, secondId] = newFlippedCards;
-      const firstCard = cards.find(card => card.id === firstId);
-      const secondCard = cards.find(card => card.id === secondId);
+      const firstCard = cards.find((card) => card.id === firstId);
+      const secondCard = cards.find((card) => card.id === secondId);
 
-      if (firstCard.emoji === secondCard.emoji) {
+      // Memeriksa kecocokan berdasarkan 'imageSrc'
+      if (firstCard.imageSrc === secondCard.imageSrc) {
         // Match found!
         setTimeout(() => {
           setMatchedCards([...matchedCards, firstId, secondId]);
@@ -87,6 +104,7 @@ export default function MemoryMatchGame() {
   return (
     <>
       <style jsx global>{`
+        /* ... (style Anda tetap sama, tidak perlu diubah) ... */
         @import url('https://fonts.googleapis.com/css2?family=Covered+By+Your+Grace&family=Reenie+Beanie&family=Special+Elite&display=swap');
         
         .font-handwriting { font-family: 'Covered By Your Grace', cursive; }
@@ -114,13 +132,14 @@ export default function MemoryMatchGame() {
 
       <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-100 to-amber-100 p-4 md:p-8 relative overflow-hidden">
         
-        {/* Floating hearts background */}
+        {/* ... (Floating hearts background tetap sama) ... */}
         <div className="absolute top-[10%] left-[10%] text-4xl opacity-20 animate-float">💝</div>
         <div className="absolute top-[20%] right-[15%] text-3xl opacity-20 animate-float" style={{animationDelay: '1s'}}>💖</div>
         <div className="absolute bottom-[20%] left-[20%] text-3xl opacity-20 animate-float" style={{animationDelay: '2s'}}>💗</div>
         <div className="absolute bottom-[30%] right-[10%] text-4xl opacity-20 animate-float" style={{animationDelay: '1.5s'}}>💕</div>
         <div className="absolute top-[50%] left-[5%] text-3xl opacity-20 animate-float" style={{animationDelay: '0.5s'}}>🌸</div>
         <div className="absolute top-[60%] right-[5%] text-3xl opacity-20 animate-float" style={{animationDelay: '2.5s'}}>🌹</div>
+
 
         <div className="max-w-4xl mx-auto">
           {/* Header */}
@@ -142,7 +161,7 @@ export default function MemoryMatchGame() {
             </div>
             <div className="bg-white/80 backdrop-blur px-6 py-3 rounded-full shadow-lg">
               <span className="font-handwriting text-xl text-purple-700">
-                Matched: <span className="font-bold text-pink-600">{matchedCards.length / 2}/{emojis.length}</span>
+                Matched: <span className="font-bold text-pink-600">{matchedCards.length / 2}/{uniqueImageSources.length}</span>
               </span>
             </div>
           </div>
@@ -156,21 +175,29 @@ export default function MemoryMatchGame() {
                 disabled={isCardFlipped(card.id) || isChecking}
                 className={`aspect-square rounded-2xl shadow-xl transition-all duration-500 transform hover:scale-105 ${
                   isCardFlipped(card.id)
-                    ? 'bg-gradient-to-br from-pink-400 to-purple-400'
-                    : 'bg-gradient-to-br from-amber-200 to-orange-200 hover:from-amber-300 hover:to-orange-300'
+                    ? 'bg-white' // Latar belakang putih saat kartu terbalik (menampilkan foto)
+                    : 'bg-gradient-to-br from-amber-200 to-orange-200 hover:from-amber-300 hover:to-orange-300' // Latar belakang kartu tertutup
                 } ${matchedCards.includes(card.id) ? 'opacity-80 scale-95' : ''}`}
-                style={{
-                  transform: isCardFlipped(card.id) ? 'rotateY(0deg)' : 'rotateY(0deg)',
-                }}
               >
                 <div className="w-full h-full flex items-center justify-center text-4xl md:text-5xl">
-                  {isCardFlipped(card.id) ? card.emoji : '❓'}
+                  {isCardFlipped(card.id) ? (
+                    // Menampilkan gambar jika kartu terbalik
+                    <img
+                      src={card.imageSrc}
+                      alt="Memory Match"
+                      className="w-full h-full object-cover rounded-2xl"
+                    />
+                  ) : (
+                    // Menampilkan '?' jika kartu tertutup
+                    '❓'
+                  )}
                 </div>
               </button>
             ))}
           </div>
 
           {/* Controls */}
+          {/* ... (Kontrol tetap sama) ... */}
           <div className="flex justify-center gap-4">
             <button
               onClick={initializeGame}
@@ -202,7 +229,7 @@ export default function MemoryMatchGame() {
                   animationDelay: `${Math.random() * 0.5}s`,
                 }}
               >
-                {['💕', '💖', '💗', '💝', '🌸', '🌹'][Math.floor(Math.random() * 6)]}
+                {confettiEmojis[Math.floor(Math.random() * confettiEmojis.length)]}
               </div>
             ))}
 
