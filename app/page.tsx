@@ -1,12 +1,15 @@
+// page.tsx
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Heart, Loader2 } from 'lucide-react';
+import Link from 'next/link';
 
 export default function VintageScrapbook() {
   const [isLoading, setIsLoading] = useState(true);
   const [visiblePhotos, setVisiblePhotos] = useState(new Set());
   const [visibleStrips, setVisibleStrips] = useState(new Set());
+  const [showGameButton, setShowGameButton] = useState(false);
   const stripRef = useRef(null);
 
   // Simulate loading
@@ -65,6 +68,28 @@ export default function VintageScrapbook() {
     return () => observer.disconnect();
   }, [isLoading]);
 
+  // Intersection Observer for game button
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setShowGameButton(true);
+          } else {
+            setShowGameButton(false);
+          }
+        });
+      },
+      { threshold: 0.5, rootMargin: '0px' }
+    );
+
+    const gameSection = document.querySelector('[data-game-section]');
+    if (gameSection) {
+      observer.observe(gameSection);
+    }
+    return () => observer.disconnect();
+  }, [isLoading]);
+
   if (isLoading) {
     return (
       <div className="fixed inset-0 bg-gradient-to-br from-amber-50 to-orange-100 flex flex-col items-center justify-center z-50">
@@ -75,31 +100,31 @@ export default function VintageScrapbook() {
   }
 
   const photos = [
-    { id: 1, rotate: -3, caption: "kita pertama kali meet up!", imgSrc: "gallery/photo1.png" },
-    { id: 2, rotate: 2, caption: "nemenin kamu ke pasar 😋", imgSrc: "gallery/photo2.jpg" },
-    { id: 3, rotate: -4, caption: "pertama kali ketempat mu", imgSrc: "gallery/photo3.jpg" },
-    { id: 4, rotate: 1, caption: "OFFICIAL! kita pacaran!! 💗💓💕", imgSrc: "gallery/photo4.jpg" },
-    { id: 5, rotate: -2, caption: "menaklukan gunung batur berdua 😝😎", imgSrc: "gallery/photo5.JPEG" },
-    { id: 6, rotate: 3, caption: "Park Shanghai", imgSrc: "gallery/photo6.jpg" },
-    { id: 7, rotate: -3, caption: "mirror photo 📸", imgSrc: "gallery/photo7.jpg" },
-    { id: 8, rotate: 2, caption: "ke cat cafe tapi kamunya lebih lucu", imgSrc: "gallery/photo8.jpg" },
-    { id: 9, rotate: -4, caption: "mirror photo lagi 🤳", imgSrc: "gallery/photo9.jpg" },
-    { id: 10, rotate: 1, caption: "seru banget banyak anjing! 🐶", imgSrc: "gallery/photo10.jpg" },
-    { id: 11, rotate: -2, caption: "my cutie patootie 🥰", imgSrc: "gallery/photo11.jpg" },
+    { id: 1, rotate: -3, caption: "kita pertama kali meet up!", imgSrc: "/gallery/photo1.png" },
+    { id: 2, rotate: 2, caption: "nemenin kamu ke pasar 😋", imgSrc: "/gallery/photo2.jpg" },
+    { id: 3, rotate: -4, caption: "pertama kali ketempat mu", imgSrc: "/gallery/photo3.jpg" },
+    { id: 4, rotate: 1, caption: "OFFICIAL! kita pacaran!! 💗💓💕", imgSrc: "/gallery/photo4.jpg" },
+    { id: 5, rotate: -2, caption: "menaklukan gunung batur berdua 😘😎", imgSrc: "/gallery/photo5.JPEG" },
+    { id: 6, rotate: 3, caption: "Park Shanghai", imgSrc: "/gallery/photo6.jpg" },
+    { id: 7, rotate: -3, caption: "mirror photo 📸", imgSrc: "/gallery/photo7.jpg" },
+    { id: 8, rotate: 2, caption: "ke cat cafe tapi kamunya lebih lucu", imgSrc: "/gallery/photo8.jpg" },
+    { id: 9, rotate: -4, caption: "mirror photo lagi 🤳", imgSrc: "/gallery/photo9.jpg" },
+    { id: 10, rotate: 1, caption: "seru banget banyak anjing! 🐶", imgSrc: "/gallery/photo10.jpg" },
+    { id: 11, rotate: -2, caption: "my cutie patootie 🥰", imgSrc: "/gallery/photo11.jpg" },
   ];
 
   const photoboothPhotos = {
     strip1: [
-      "photobox/b1.jpg",
-      "photobox/b2.jpg",
-      "photobox/b3.jpg",
-      "photobox/b4.jpg"
+      "/photobox/b1.jpg",
+      "/photobox/b2.jpg",
+      "/photobox/b3.jpg",
+      "/photobox/b4.jpg"
     ],
     strip2: [
-      "photobox/a1.JPG",
-      "photobox/a2.JPG",
-      "photobox/a3.JPG",
-      "photobox/a4.JPG"
+      "/photobox/a1.JPG",
+      "/photobox/a2.JPG",
+      "/photobox/a3.JPG",
+      "/photobox/a4.JPG"
     ]
   };
 
@@ -120,10 +145,18 @@ export default function VintageScrapbook() {
         .animate-float {
           animation: float 6s ease-in-out infinite;
         }
-      `}</style>
 
+        @keyframes heartbeat {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.1); }
+        }
+
+        .animate-heartbeat {
+          animation: heartbeat 1.5s ease-in-out infinite;
+        }
+      `}</style>
+      
       <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 overflow-x-hidden">
-        
         {/* Landing Section */}
         <section className="min-h-screen flex flex-col items-center justify-center px-4 py-20 relative">
           <div className="relative bg-amber-50/95 border-[15px] border-amber-800 p-12 md:p-16 max-w-2xl shadow-2xl">
@@ -198,7 +231,7 @@ export default function VintageScrapbook() {
           </h2>
           
           <div className="flex flex-wrap gap-8 md:gap-12 justify-center items-end max-w-5xl">
-            {/* Left Strip - Normal Animation */}
+            {/* Left Strip */}
             <div
               ref={stripRef}
               data-photobooth-strip
@@ -230,7 +263,7 @@ export default function VintageScrapbook() {
               </div>
             </div>
             
-            {/* Right Strip - Normal Animation */}
+            {/* Right Strip */}
             <div
               data-photobooth-strip
               data-strip-id="strip-2"
@@ -280,26 +313,54 @@ export default function VintageScrapbook() {
           >
             <div className="absolute top-0 left-10 w-0.5 h-full bg-pink-300 opacity-30" />
             
-            <div 
-  className="font-handwriting text-xl md:text-2xl text-amber-950 leading-[2.2] min-h-[400px] outline-none"
-  contentEditable
-  suppressContentEditableWarning
->
-  Dear Aching Kepret,
-  <br/><br/>
-  Happy Birthday, my love!
-  <br/><br/>
-  I hope your day is as beautiful and as bright as you are. May all your wishes come true and may this coming year bring you everything you've been working so hard for. You deserve all the happiness in the world.
-  <br/><br/>
-  I'm so grateful to have you and I truly hope I get to call you my wife someday (hehe).
-  <br/><br/>
-  Every moment with you is a treasure I hold close to my heart.
-</div>
+            <div className="font-handwriting text-xl md:text-2xl text-amber-950 leading-[2.2] min-h-[400px]">
+              Dear Aching Kepret,
+              <br/><br/>
+              Happy Birthday, my love!
+              <br/><br/>
+              I hope your day is as beautiful and as bright as you are. May all your wishes come true and may this coming year bring you everything you've been working so hard for. You deserve all the happiness in the world.
+              <br/><br/>
+              I'm so grateful to have you and I truly hope I get to call you my wife someday (hehe).
+              <br/><br/>
+              Every moment with you is a treasure I hold close to my heart.
+            </div>
 
-<div className="text-right mt-10 font-signature text-3xl md:text-4xl text-amber-900">
-  With all my love,<br/>
-  Nathan ♡
-</div>
+            <div className="text-right mt-10 font-signature text-3xl md:text-4xl text-amber-900">
+              With all my love,<br/>
+              Nathan ♡
+            </div>
+          </div>
+        </section>
+
+        {/* Game Section */}
+        <section 
+          data-game-section
+          className="min-h-screen py-20 px-4 flex flex-col items-center justify-center relative"
+        >
+          <div className="absolute top-[20%] left-[15%] text-4xl opacity-40 animate-float">💝</div>
+          <div className="absolute top-[30%] right-[10%] text-4xl opacity-40 animate-float" style={{animationDelay: '1s'}}>💖</div>
+          <div className="absolute bottom-[25%] left-[10%] text-4xl opacity-40 animate-float" style={{animationDelay: '2s'}}>💗</div>
+          <div className="absolute bottom-[35%] right-[20%] text-4xl opacity-40 animate-float" style={{animationDelay: '1.5s'}}>💕</div>
+          
+          <div 
+            className={`text-center transition-all duration-1000 ${
+              showGameButton 
+                ? 'opacity-100 translate-y-0' 
+                : 'opacity-0 translate-y-12'
+            }`}
+          >
+            <h2 className="font-signature text-5xl md:text-7xl text-amber-900 mb-8">
+              Want to play a game?
+            </h2>
+            <p className="font-handwriting text-2xl md:text-3xl text-amber-800 mb-12">
+              I made something special for you... 💕
+            </p>
+            
+            <Link href="/game">
+              <button className="bg-pink-500 hover:bg-pink-600 text-white font-handwriting text-2xl md:text-3xl px-12 py-6 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 animate-heartbeat border-4 border-pink-300">
+                Play Game! 🎮
+              </button>
+            </Link>
           </div>
         </section>
 
