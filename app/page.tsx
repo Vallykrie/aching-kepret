@@ -92,14 +92,14 @@ export default function VintageScrapbook() {
     strip1: [
       "photobox/b1.jpg",
       "photobox/b2.jpg",
-      "photobox/b2.jpg",
-      "photobox/b2.jpg"
+      "photobox/b3.jpg",
+      "photobox/b4.jpg"
     ],
     strip2: [
       "photobox/a1.JPG",
       "photobox/a2.JPG",
-      "photobox/a2.JPG",
-      "photobox/a2.JPG"
+      "photobox/a3.JPG",
+      "photobox/a4.JPG"
     ]
   };
 
@@ -291,7 +291,7 @@ export default function VintageScrapbook() {
   <br/><br/>
   I hope your day is as beautiful and as bright as you are. May all your wishes come true and may this coming year bring you everything you've been working so hard for. You deserve all the happiness in the world.
   <br/><br/>
-  I'm so grateful for you... and I truly hope I get to call you my wife someday (hehe).
+  I'm so grateful to have you and I truly hope I get to call you my wife someday (hehe).
   <br/><br/>
   Every moment with you is a treasure I hold close to my heart.
 </div>
