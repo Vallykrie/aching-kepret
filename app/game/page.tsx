@@ -19,14 +19,14 @@ export default function MemoryMatchGame() {
   // Pastikan Anda memiliki 8 path gambar yang unik.
   // Anda bisa letakkan gambar di folder /public/images/
   const uniqueImageSources = [
-    '/game-photos/photo1.jpg',
-    '/game-photos/photo2.jpg',
-    '/game-photos/photo3.jpg',
-    '/game-photos/photo4.jpg',
-    '/game-photos/photo5.jpg',
-    '/game-photos/photo6.jpg',
-    '/game-photos/photo7.jpg',
-    '/game-photos/photo8.jpg',
+    '/game-photos/photo1.JPEG',
+    '/game-photos/photo2.JPEG',
+    '/game-photos/photo3.PNG',
+    '/game-photos/photo4.JPEG',
+    '/game-photos/photo5.JPEG',
+    '/game-photos/photo6.JPEG',
+    '/game-photos/photo7.JPEG',
+    '/game-photos/photo8.JPEG',
   ];
   // ⬆️ *********************** ⬆️
 
