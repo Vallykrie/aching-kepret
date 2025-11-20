@@ -15,6 +15,22 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Aching Kepret",
   description: "Aching Kepret brot broooottt aku nak berak babiiikk",
+  openGraph: {
+    siteName: "Aching Kepret",
+    title: "Happy Birthday Aching Kepret 🎉",
+    description: "Aching Kepret brot broooottt aku nak berak babiiikk",
+    type: "website",
+    url: "https://aching-kepret.vercel.app/",
+    images: [
+      {
+        url: "/public/game-photos/photo2.JPEG",
+        alt: "Aching Kepret brot broooottt aku nak berak babiiikk",
+        width: 1200,
+        height: 630,
+      },
+    ],
+    locale: "en_BE",
+  },
 };
 
 export default function RootLayout({
