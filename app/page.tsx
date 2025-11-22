@@ -60,9 +60,10 @@ export default function VintageScrapbook() {
           scrollTrigger: {
             trigger: galleryRef.current,
             pin: true,
-            scrub: 1,
+            scrub: 0.5, // Reduced from 1 for snappier feel
             snap: 1 / (sections.length - 1),
-            end: () => "+=" + galleryContainerRef.current!.offsetWidth
+            end: () => "+=" + galleryContainerRef.current!.offsetWidth,
+            invalidateOnRefresh: true, // Handle resize better
           }
         });
       }
@@ -205,15 +206,15 @@ export default function VintageScrapbook() {
              <p className="font-handwriting text-lg md:text-xl text-[#8d6e63] ml-2">Scroll to explore</p>
           </div>
 
-          <div ref={galleryContainerRef} className="flex flex-nowrap items-center px-4 md:px-20 h-full w-fit">
+          <div ref={galleryContainerRef} className="flex flex-nowrap items-center px-4 md:px-20 h-full w-fit will-change-transform">
             {photos.map((photo, index) => (
               <div
                 key={photo.id}
-                className="gallery-item flex-shrink-0 w-[90vw] md:w-[30vw] h-[60vh] md:h-[70vh] flex items-center justify-center px-2 md:px-8"
+                className="gallery-item flex-shrink-0 w-[90vw] md:w-[30vw] h-[60vh] md:h-[70vh] flex items-center justify-center px-2 md:px-8 will-change-transform"
               >
                 <div className="bg-white p-3 md:p-4 pb-8 md:pb-12 shadow-xl transform transition-transform hover:scale-105 duration-300 relative rotate-1 w-full h-full flex flex-col">
                   <div className="absolute -top-3 md:-top-4 left-1/2 -translate-x-1/2 w-20 md:w-24 h-6 md:h-8 bg-[#e0e0e0] opacity-60 -rotate-2 shadow-sm tape-strip"></div>
-                  <div className="w-full flex-grow overflow-hidden border border-gray-200 bg-gray-100 relative">
+                  <div className="w-full grow overflow-hidden border border-gray-200 bg-gray-100 relative">
                     <img 
                       src={photo.imgSrc} 
                       alt={photo.caption}

@@ -240,7 +240,7 @@ export default function MemoryMatchGame() {
               </div>
             ))}
 
-            <div className="win-modal bg-[#fff9f0] p-8 md:p-12 shadow-2xl text-center max-w-md border-[10px] border-[#8b5e3c] relative transform rotate-1">
+            <div className="win-modal bg-[#fff9f0] p-8 md:p-12 shadow-2xl text-center max-w-md border-10 border-[#8b5e3c] relative transform rotate-1">
               <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-32 h-8 bg-[#e0e0e0] opacity-60 -rotate-1 shadow-sm tape-strip"></div>
               
               <Trophy className="w-20 h-20 text-[#fbc02d] mx-auto mb-4" />
