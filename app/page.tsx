@@ -200,27 +200,27 @@ export default function VintageScrapbook() {
 
         {/* Horizontal Scroll Gallery Section */}
         <section ref={galleryRef} className="h-screen flex flex-col justify-center bg-[#f5e6d3] overflow-hidden relative">
-          <div className="absolute top-10 left-10 z-10">
-             <h2 className="font-signature text-5xl text-[#5d4037]">Our Memories ♡</h2>
-             <p className="font-handwriting text-xl text-[#8d6e63] ml-2">Scroll to explore &rarr;</p>
+          <div className="absolute top-10 left-4 md:left-10 z-10">
+             <h2 className="font-signature text-4xl md:text-5xl text-[#5d4037]">Our Memories ♡</h2>
+             <p className="font-handwriting text-lg md:text-xl text-[#8d6e63] ml-2">Scroll to explore</p>
           </div>
 
-          <div ref={galleryContainerRef} className="flex flex-nowrap items-center px-20 h-full w-[400%]">
+          <div ref={galleryContainerRef} className="flex flex-nowrap items-center px-4 md:px-20 h-full w-fit">
             {photos.map((photo, index) => (
               <div
                 key={photo.id}
-                className="gallery-item flex-shrink-0 w-screen md:w-[30vw] h-[70vh] flex items-center justify-center px-8"
+                className="gallery-item flex-shrink-0 w-[90vw] md:w-[30vw] h-[60vh] md:h-[70vh] flex items-center justify-center px-2 md:px-8"
               >
-                <div className="bg-white p-4 pb-12 shadow-xl transform transition-transform hover:scale-105 duration-300 relative rotate-1">
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-24 h-8 bg-[#e0e0e0] opacity-60 -rotate-2 shadow-sm tape-strip"></div>
-                  <div className="w-full h-[50vh] overflow-hidden border border-gray-200 bg-gray-100">
+                <div className="bg-white p-3 md:p-4 pb-8 md:pb-12 shadow-xl transform transition-transform hover:scale-105 duration-300 relative rotate-1 w-full h-full flex flex-col">
+                  <div className="absolute -top-3 md:-top-4 left-1/2 -translate-x-1/2 w-20 md:w-24 h-6 md:h-8 bg-[#e0e0e0] opacity-60 -rotate-2 shadow-sm tape-strip"></div>
+                  <div className="w-full flex-grow overflow-hidden border border-gray-200 bg-gray-100 relative">
                     <img 
                       src={photo.imgSrc} 
                       alt={photo.caption}
-                      className="w-full h-full object-cover sepia-[.3]"
+                      className="absolute inset-0 w-full h-full object-cover sepia-[.3]"
                     />
                   </div>
-                  <p className="mt-4 font-handwriting text-2xl text-[#5d4037] text-center leading-tight">
+                  <p className="mt-3 md:mt-4 font-handwriting text-xl md:text-2xl text-[#5d4037] text-center leading-tight">
                     {photo.caption}
                   </p>
                 </div>
@@ -234,15 +234,15 @@ export default function VintageScrapbook() {
           <div className="absolute inset-0 opacity-5" 
                style={{ backgroundImage: 'radial-gradient(#8b5e3c 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
 
-          <h2 className="font-signature text-5xl md:text-7xl text-[#5d4037] mb-20 text-center relative z-10">
+          <h2 className="font-signature text-4xl md:text-7xl text-[#5d4037] mb-12 md:mb-20 text-center relative z-10">
             Photobooth Memories ♡
           </h2>
           
-          <div className="flex flex-wrap gap-16 justify-center items-start max-w-6xl relative z-10">
+          <div className="flex flex-wrap gap-8 md:gap-16 justify-center items-start max-w-6xl relative z-10">
             {/* Left Strip */}
-            <div className="photobooth-strip bg-white p-4 pb-8 shadow-2xl w-full max-w-[300px] transform -rotate-3">
+            <div className="photobooth-strip bg-white p-3 md:p-4 pb-6 md:pb-8 shadow-2xl w-full max-w-[280px] md:max-w-[300px] transform -rotate-3">
               <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-20 h-8 bg-[#e0e0e0] opacity-70 rotate-2 shadow-sm tape-strip"></div>
-              <div className="text-center font-typewriter text-xs text-[#5d4037] border-b-2 border-dashed border-[#a1887f] pb-2 mb-4">
+              <div className="text-center font-typewriter text-[10px] md:text-xs text-[#5d4037] border-b-2 border-dashed border-[#a1887f] pb-2 mb-4">
                 ★ PHOTOBOOTH ★<br/>
                 [DENPASAR] - [17 AUGUST 2025]
               </div>
@@ -257,9 +257,9 @@ export default function VintageScrapbook() {
             </div>
             
             {/* Right Strip */}
-            <div className="photobooth-strip bg-white p-4 pb-8 shadow-2xl w-full max-w-[300px] transform rotate-3 mt-12 md:mt-0">
+            <div className="photobooth-strip bg-white p-3 md:p-4 pb-6 md:pb-8 shadow-2xl w-full max-w-[280px] md:max-w-[300px] transform rotate-3 mt-8 md:mt-0">
               <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-20 h-8 bg-[#e0e0e0] opacity-70 -rotate-1 shadow-sm tape-strip"></div>
-              <div className="text-center font-typewriter text-xs text-[#5d4037] border-b-2 border-dashed border-[#a1887f] pb-2 mb-4">
+              <div className="text-center font-typewriter text-[10px] md:text-xs text-[#5d4037] border-b-2 border-dashed border-[#a1887f] pb-2 mb-4">
                 ★ PHOTOBOOTH ★<br/>
                 [KAYUTANGAN] - [6 NOVEMBER 2025]
               </div>
@@ -277,17 +277,17 @@ export default function VintageScrapbook() {
 
         {/* Letter Section */}
         <section className="min-h-screen py-20 px-4 flex items-center justify-center bg-[#f5e6d3]">
-          <div className="letter-container bg-[#fff9f0] p-10 md:p-16 max-w-3xl w-full shadow-xl relative transform rotate-1 border border-[#e0e0e0]">
+          <div className="letter-container bg-[#fff9f0] p-6 md:p-16 max-w-3xl w-full shadow-xl relative transform rotate-1 border border-[#e0e0e0]">
              {/* Paper Texture */}
             <div className="absolute inset-0 opacity-40 pointer-events-none"
                  style={{ backgroundImage: `repeating-linear-gradient(transparent, transparent 29px, #d7ccc8 29px, #d7ccc8 30px)`, backgroundSize: '100% 30px' }}></div>
             
-            <div className="absolute -top-5 right-10 w-32 h-10 bg-[#e0e0e0] opacity-50 rotate-3 shadow-sm tape-strip"></div>
-            <div className="absolute -bottom-5 left-10 w-32 h-10 bg-[#e0e0e0] opacity-50 -rotate-2 shadow-sm tape-strip"></div>
+            <div className="absolute -top-4 md:-top-5 right-10 w-24 md:w-32 h-8 md:h-10 bg-[#e0e0e0] opacity-50 rotate-3 shadow-sm tape-strip"></div>
+            <div className="absolute -bottom-4 md:-bottom-5 left-10 w-24 md:w-32 h-8 md:h-10 bg-[#e0e0e0] opacity-50 -rotate-2 shadow-sm tape-strip"></div>
 
-            <div className="absolute top-0 left-12 w-0.5 h-full bg-red-300 opacity-40"></div>
+            <div className="absolute top-0 left-6 md:left-12 w-0.5 h-full bg-red-300 opacity-40"></div>
             
-            <div className="font-handwriting text-2xl md:text-3xl text-[#4e342e] leading-[2.2] min-h-[400px] relative z-10">
+            <div className="font-handwriting text-xl md:text-3xl text-[#4e342e] leading-[2.2] min-h-[300px] md:min-h-[400px] relative z-10 pl-4 md:pl-0">
               Dear Aching Kepret,
               <br/><br/>
               Happy Birthday, my love!
@@ -299,7 +299,7 @@ export default function VintageScrapbook() {
               Every moment with you is a treasure I hold close to my heart.
             </div>
 
-            <div className="text-right mt-12 font-signature text-4xl md:text-5xl text-[#5d4037] relative z-10">
+            <div className="text-right mt-8 md:mt-12 font-signature text-3xl md:text-5xl text-[#5d4037] relative z-10">
               With all my love,<br/>
               Nathan ♡
             </div>
