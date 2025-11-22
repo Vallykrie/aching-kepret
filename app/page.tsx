@@ -1,16 +1,19 @@
 // page.tsx
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
-import { Heart, Loader2 } from 'lucide-react';
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import { Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function VintageScrapbook() {
   const [isLoading, setIsLoading] = useState(true);
-  const [visiblePhotos, setVisiblePhotos] = useState(new Set());
-  const [visibleStrips, setVisibleStrips] = useState(new Set());
-  const [showGameButton, setShowGameButton] = useState(false);
-  const stripRef = useRef(null);
+  const mainRef = useRef<HTMLDivElement>(null);
+  const galleryRef = useRef<HTMLDivElement>(null);
+  const galleryContainerRef = useRef<HTMLDivElement>(null);
 
   // Simulate loading
   useEffect(() => {
@@ -20,81 +23,103 @@ export default function VintageScrapbook() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Intersection Observer for photos
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const id = entry.target.getAttribute('data-id');
-          if (entry.isIntersecting) {
-            setVisiblePhotos(prev => new Set([...prev, id]));
-          } else {
-            setVisiblePhotos(prev => {
-              const newSet = new Set(prev);
-              newSet.delete(id);
-              return newSet;
-            });
+  // GSAP Animations
+  useLayoutEffect(() => {
+    if (isLoading) return;
+
+    const ctx = gsap.context(() => {
+      // Landing Page Animations
+      const tl = gsap.timeline();
+      tl.from(".landing-title", {
+        y: 50,
+        opacity: 0,
+        duration: 1.5,
+        ease: "power3.out",
+        delay: 0.5
+      })
+      .from(".landing-text", {
+        y: 30,
+        opacity: 0,
+        duration: 1,
+        ease: "power3.out"
+      }, "-=1")
+      .from(".landing-flower", {
+        scale: 0,
+        opacity: 0,
+        duration: 1.5,
+        stagger: 0.2,
+        ease: "elastic.out(1, 0.5)"
+      }, "-=1");
+
+      // Horizontal Scroll Gallery
+      const sections = gsap.utils.toArray(".gallery-item");
+      if (galleryRef.current && galleryContainerRef.current) {
+        gsap.to(sections, {
+          xPercent: -100 * (sections.length - 1),
+          ease: "none",
+          scrollTrigger: {
+            trigger: galleryRef.current,
+            pin: true,
+            scrub: 1,
+            snap: 1 / (sections.length - 1),
+            end: () => "+=" + galleryContainerRef.current!.offsetWidth
           }
         });
-      },
-      { threshold: 0.2, rootMargin: '-50px' }
-    );
+      }
 
-    document.querySelectorAll('[data-photo-frame]').forEach(el => observer.observe(el));
-    return () => observer.disconnect();
-  }, [isLoading]);
-
-  // Intersection Observer for photobooth strips
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          const id = entry.target.getAttribute('data-strip-id');
-          if (entry.isIntersecting) {
-            setVisibleStrips(prev => new Set([...prev, id]));
-          } else {
-            setVisibleStrips(prev => {
-              const newSet = new Set(prev);
-              newSet.delete(id);
-              return newSet;
-            });
-          }
+      // Photobooth Strip Animation
+      gsap.utils.toArray(".photobooth-strip").forEach((strip: any, i) => {
+        gsap.from(strip, {
+          scrollTrigger: {
+            trigger: strip,
+            start: "top 80%",
+            toggleActions: "play none none reverse"
+          },
+          y: 100,
+          opacity: 0,
+          rotation: i % 2 === 0 ? -10 : 10,
+          duration: 1.2,
+          ease: "power2.out"
         });
-      },
-      { threshold: 0.3, rootMargin: '-50px' }
-    );
+      });
 
-    document.querySelectorAll('[data-photobooth-strip]').forEach(el => observer.observe(el));
-    return () => observer.disconnect();
-  }, [isLoading]);
+      // Letter Animation
+      gsap.from(".letter-container", {
+        scrollTrigger: {
+          trigger: ".letter-container",
+          start: "top 75%",
+          toggleActions: "play none none reverse"
+        },
+        y: 50,
+        opacity: 0,
+        scale: 0.95,
+        duration: 1.5,
+        ease: "power2.out"
+      });
 
-  // Intersection Observer for game button
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setShowGameButton(true);
-          } else {
-            setShowGameButton(false);
-          }
-        });
-      },
-      { threshold: 0.5, rootMargin: '0px' }
-    );
+      // Game Section Animation
+      gsap.from(".game-content", {
+        scrollTrigger: {
+          trigger: ".game-section",
+          start: "top 70%",
+          toggleActions: "play none none reverse"
+        },
+        scale: 0.8,
+        opacity: 0,
+        duration: 1,
+        ease: "back.out(1.7)"
+      });
 
-    const gameSection = document.querySelector('[data-game-section]');
-    if (gameSection) {
-      observer.observe(gameSection);
-    }
-    return () => observer.disconnect();
+    }, mainRef);
+
+    return () => ctx.revert();
   }, [isLoading]);
 
   if (isLoading) {
     return (
-      <div className="fixed inset-0 bg-gradient-to-br from-amber-50 to-orange-100 flex flex-col items-center justify-center z-50">
-        <Loader2 className="w-16 h-16 text-amber-700 animate-spin mb-4" />
-        <p className="text-2xl text-amber-800 font-handwriting">Loading our memories 💖...</p>
+      <div className="fixed inset-0 bg-[#fdf6e3] flex flex-col items-center justify-center z-50">
+        <Loader2 className="w-16 h-16 text-[#8b5e3c] animate-spin mb-4" />
+        <p className="text-2xl text-[#6d4c41] font-handwriting">Loading our memories 💖...</p>
       </div>
     );
   }
@@ -137,158 +162,112 @@ export default function VintageScrapbook() {
         .font-signature { font-family: 'Reenie Beanie', cursive; }
         .font-typewriter { font-family: 'Special Elite', cursive; }
         
-        @keyframes float {
-          0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-20px) rotate(10deg); }
+        /* Hide scrollbar for horizontal scroll container if needed */
+        .no-scrollbar::-webkit-scrollbar {
+          display: none;
         }
-        
-        .animate-float {
-          animation: float 6s ease-in-out infinite;
-        }
-
-        @keyframes heartbeat {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.1); }
-        }
-
-        .animate-heartbeat {
-          animation: heartbeat 1.5s ease-in-out infinite;
+        .no-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
         }
       `}</style>
       
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 overflow-x-hidden">
+      <div ref={mainRef} className="min-h-screen bg-[#fdf6e3] text-[#5d4037] overflow-x-hidden">
         {/* Landing Section */}
-        <section className="min-h-screen flex flex-col items-center justify-center px-4 py-20 relative">
-          <div className="relative bg-amber-50/95 border-[15px] border-amber-800 p-12 md:p-16 max-w-2xl shadow-2xl">
-            <div className="absolute top-2 left-2 text-4xl opacity-60">🌸</div>
-            <div className="absolute bottom-2 right-2 text-4xl opacity-60">🌸</div>
+        <section className="min-h-screen flex flex-col items-center justify-center px-4 py-20 relative overflow-hidden">
+          {/* Background Elements */}
+          <div className="absolute inset-0 pointer-events-none opacity-10" 
+               style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/paper-fibers.png")' }}></div>
+          
+          <div className="relative bg-[#fff9f0] border-[12px] border-[#8b5e3c] p-12 md:p-16 max-w-2xl shadow-retro transform rotate-1">
+            <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-32 h-8 bg-[#e0e0e0] opacity-60 rotate-1 shadow-sm tape-strip"></div>
             
-            <h1 className="font-signature text-5xl md:text-7xl text-amber-900 mb-8 text-center drop-shadow-md">
+            <h1 className="landing-title font-signature text-6xl md:text-8xl text-[#5d4037] mb-6 text-center drop-shadow-sm">
               A Small Digital Gift
             </h1>
-            <p className="font-typewriter text-lg md:text-xl text-amber-800 text-center leading-relaxed">
+            <p className="landing-text font-typewriter text-lg md:text-xl text-[#795548] text-center leading-relaxed">
               for aching kepret<br/>
               Made with love, <br/>just for you
             </p>
           </div>
           
-          <div className="absolute top-[15%] left-[10%] text-3xl opacity-50 animate-float">🌺</div>
-          <div className="absolute top-[25%] right-[15%] text-3xl opacity-50 animate-float" style={{animationDelay: '1s'}}>🌸</div>
-          <div className="absolute bottom-[20%] left-[20%] text-3xl opacity-50 animate-float" style={{animationDelay: '2s'}}>🌼</div>
-          <div className="absolute bottom-[30%] right-[10%] text-3xl opacity-50 animate-float" style={{animationDelay: '1.5s'}}>🌷</div>
-          <div className="absolute top-[60%] left-[5%] text-3xl opacity-50 animate-float" style={{animationDelay: '0.5s'}}>🌹</div>
+          <div className="landing-flower absolute top-[15%] left-[10%] text-4xl opacity-70">🌺</div>
+          <div className="landing-flower absolute top-[25%] right-[15%] text-4xl opacity-70">🌸</div>
+          <div className="landing-flower absolute bottom-[20%] left-[20%] text-4xl opacity-70">🌼</div>
+          <div className="landing-flower absolute bottom-[30%] right-[10%] text-4xl opacity-70">🌷</div>
+          <div className="landing-flower absolute top-[60%] left-[5%] text-4xl opacity-70">🌹</div>
         </section>
 
-        {/* Photos Gallery Section */}
-        <section className="min-h-screen py-20 px-4 flex flex-col items-center justify-center">
-          <h2 className="font-signature text-4xl md:text-6xl text-amber-900 mb-12 text-center">
-            Our Memories Together ♡
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12 max-w-6xl w-full px-4">
+        {/* Horizontal Scroll Gallery Section */}
+        <section ref={galleryRef} className="h-screen flex flex-col justify-center bg-[#f5e6d3] overflow-hidden relative">
+          <div className="absolute top-10 left-10 z-10">
+             <h2 className="font-signature text-5xl text-[#5d4037]">Our Memories ♡</h2>
+             <p className="font-handwriting text-xl text-[#8d6e63] ml-2">Scroll to explore &rarr;</p>
+          </div>
+
+          <div ref={galleryContainerRef} className="flex flex-nowrap items-center px-20 h-full w-[400%]">
             {photos.map((photo, index) => (
               <div
                 key={photo.id}
-                data-photo-frame
-                data-id={`photo-${photo.id}`}
-                className={`bg-white p-4 shadow-xl transition-all duration-700 relative ${
-                  visiblePhotos.has(`photo-${photo.id}`)
-                    ? 'opacity-100 translate-y-0'
-                    : 'opacity-0 translate-y-12'
-                }`}
-                style={{
-                  transform: visiblePhotos.has(`photo-${photo.id}`)
-                    ? `rotate(${photo.rotate}deg)`
-                    : `translateY(50px) rotate(${photo.rotate}deg)`,
-                  transitionDelay: `${index * 150}ms`
-                }}
+                className="gallery-item flex-shrink-0 w-screen md:w-[30vw] h-[70vh] flex items-center justify-center px-8"
               >
-                {/* Tape */}
-                <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-20 h-6 bg-yellow-100/60 border border-amber-300/30 -rotate-3" />
-                
-                {/* Photo */}
-                <div className="w-full aspect-[4/3] bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center border-2 border-dashed border-amber-600 overflow-hidden">
-                  <img 
-                    src={photo.imgSrc} 
-                    alt={photo.caption}
-                    className="w-full h-full object-cover"
-                  />
+                <div className="bg-white p-4 pb-12 shadow-xl transform transition-transform hover:scale-105 duration-300 relative rotate-1">
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-24 h-8 bg-[#e0e0e0] opacity-60 -rotate-2 shadow-sm tape-strip"></div>
+                  <div className="w-full h-[50vh] overflow-hidden border border-gray-200 bg-gray-100">
+                    <img 
+                      src={photo.imgSrc} 
+                      alt={photo.caption}
+                      className="w-full h-full object-cover sepia-[.3]"
+                    />
+                  </div>
+                  <p className="mt-4 font-handwriting text-2xl text-[#5d4037] text-center leading-tight">
+                    {photo.caption}
+                  </p>
                 </div>
-                
-                {/* Caption */}
-                <p className="mt-3 font-handwriting text-xl text-amber-900 text-center">
-                  {photo.caption}
-                </p>
               </div>
             ))}
           </div>
         </section>
 
         {/* Photobooth Strip Section */}
-        <section className="min-h-screen py-20 px-4 flex flex-col items-center justify-center">
-          <h2 className="font-signature text-4xl md:text-6xl text-amber-900 mb-20 text-center">
+        <section className="min-h-screen py-20 px-4 flex flex-col items-center justify-center bg-[#fdf6e3] relative">
+          <div className="absolute inset-0 opacity-5" 
+               style={{ backgroundImage: 'radial-gradient(#8b5e3c 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
+
+          <h2 className="font-signature text-5xl md:text-7xl text-[#5d4037] mb-20 text-center relative z-10">
             Photobooth Memories ♡
           </h2>
           
-          <div className="flex flex-wrap gap-8 md:gap-12 justify-center items-end max-w-5xl">
+          <div className="flex flex-wrap gap-16 justify-center items-start max-w-6xl relative z-10">
             {/* Left Strip */}
-            <div
-              ref={stripRef}
-              data-photobooth-strip
-              data-strip-id="strip-1"
-              className={`bg-white p-6 shadow-2xl w-full max-w-[350px] transition-all duration-1000 ${
-                visibleStrips.has('strip-1')
-                  ? 'opacity-100 translate-y-0 -rotate-8'
-                  : 'opacity-0 translate-y-24 -rotate-8'
-              }`}
-            >
-              <div className="text-center font-typewriter text-sm text-amber-900 border-b-2 border-black pb-2 mb-4">
+            <div className="photobooth-strip bg-white p-4 pb-8 shadow-2xl w-full max-w-[300px] transform -rotate-3">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-20 h-8 bg-[#e0e0e0] opacity-70 rotate-2 shadow-sm tape-strip"></div>
+              <div className="text-center font-typewriter text-xs text-[#5d4037] border-b-2 border-dashed border-[#a1887f] pb-2 mb-4">
                 ★ PHOTOBOOTH ★<br/>
                 [DENPASAR] - [17 AUGUST 2025]
               </div>
               
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-3">
                 {photoboothPhotos.strip1.map((imgSrc, index) => (
-                  <div
-                    key={index}
-                    className="w-full aspect-[3/2] bg-gradient-to-br from-gray-100 to-gray-200 border-4 border-black overflow-hidden"
-                  >
-                    <img 
-                      src={imgSrc} 
-                      alt={`Photobooth strip 1 photo ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
+                  <div key={index} className="w-full aspect-[3/2] bg-gray-200 overflow-hidden grayscale-[0.2] contrast-110">
+                    <img src={imgSrc} alt={`Photobooth 1-${index}`} className="w-full h-full object-cover" />
                   </div>
                 ))}
               </div>
             </div>
             
             {/* Right Strip */}
-            <div
-              data-photobooth-strip
-              data-strip-id="strip-2"
-              className={`bg-white p-6 shadow-2xl w-full max-w-[350px] transition-all duration-1000 ${
-                visibleStrips.has('strip-2')
-                  ? 'opacity-100 translate-y-0 rotate-8'
-                  : 'opacity-0 translate-y-24 rotate-8'
-              }`}
-            >
-              <div className="text-center font-typewriter text-sm text-amber-900 border-b-2 border-black pb-2 mb-4">
+            <div className="photobooth-strip bg-white p-4 pb-8 shadow-2xl w-full max-w-[300px] transform rotate-3 mt-12 md:mt-0">
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-20 h-8 bg-[#e0e0e0] opacity-70 -rotate-1 shadow-sm tape-strip"></div>
+              <div className="text-center font-typewriter text-xs text-[#5d4037] border-b-2 border-dashed border-[#a1887f] pb-2 mb-4">
                 ★ PHOTOBOOTH ★<br/>
                 [KAYUTANGAN] - [6 NOVEMBER 2025]
               </div>
               
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-3">
                 {photoboothPhotos.strip2.map((imgSrc, index) => (
-                  <div
-                    key={index}
-                    className="w-full aspect-[3/2] bg-gradient-to-br from-gray-100 to-gray-200 border-4 border-black overflow-hidden"
-                  >
-                    <img 
-                      src={imgSrc} 
-                      alt={`Photobooth strip 2 photo ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
+                  <div key={index} className="w-full aspect-[3/2] bg-gray-200 overflow-hidden grayscale-[0.2] contrast-110">
+                    <img src={imgSrc} alt={`Photobooth 2-${index}`} className="w-full h-full object-cover" />
                   </div>
                 ))}
               </div>
@@ -297,23 +276,18 @@ export default function VintageScrapbook() {
         </section>
 
         {/* Letter Section */}
-        <section className="min-h-screen py-20 px-4 flex items-center justify-center">
-          <div 
-            data-photo-frame
-            data-id="letter"
-            className={`bg-amber-50 p-12 md:p-16 max-w-3xl w-full shadow-xl border border-amber-300 relative transition-all duration-1000 ${
-              visiblePhotos.has('letter')
-                ? 'opacity-100 translate-y-0'
-                : 'opacity-0 translate-y-12'
-            }`}
-            style={{
-              backgroundImage: `repeating-linear-gradient(transparent, transparent 29px, #e8d5c4 29px, #e8d5c4 30px)`,
-              backgroundSize: '100% 30px'
-            }}
-          >
-            <div className="absolute top-0 left-10 w-0.5 h-full bg-pink-300 opacity-30" />
+        <section className="min-h-screen py-20 px-4 flex items-center justify-center bg-[#f5e6d3]">
+          <div className="letter-container bg-[#fff9f0] p-10 md:p-16 max-w-3xl w-full shadow-xl relative transform rotate-1 border border-[#e0e0e0]">
+             {/* Paper Texture */}
+            <div className="absolute inset-0 opacity-40 pointer-events-none"
+                 style={{ backgroundImage: `repeating-linear-gradient(transparent, transparent 29px, #d7ccc8 29px, #d7ccc8 30px)`, backgroundSize: '100% 30px' }}></div>
             
-            <div className="font-handwriting text-xl md:text-2xl text-amber-950 leading-[2.2] min-h-[400px]">
+            <div className="absolute -top-5 right-10 w-32 h-10 bg-[#e0e0e0] opacity-50 rotate-3 shadow-sm tape-strip"></div>
+            <div className="absolute -bottom-5 left-10 w-32 h-10 bg-[#e0e0e0] opacity-50 -rotate-2 shadow-sm tape-strip"></div>
+
+            <div className="absolute top-0 left-12 w-0.5 h-full bg-red-300 opacity-40"></div>
+            
+            <div className="font-handwriting text-2xl md:text-3xl text-[#4e342e] leading-[2.2] min-h-[400px] relative z-10">
               Dear Aching Kepret,
               <br/><br/>
               Happy Birthday, my love!
@@ -325,7 +299,7 @@ export default function VintageScrapbook() {
               Every moment with you is a treasure I hold close to my heart.
             </div>
 
-            <div className="text-right mt-10 font-signature text-3xl md:text-4xl text-amber-900">
+            <div className="text-right mt-12 font-signature text-4xl md:text-5xl text-[#5d4037] relative z-10">
               With all my love,<br/>
               Nathan ♡
             </div>
@@ -333,31 +307,21 @@ export default function VintageScrapbook() {
         </section>
 
         {/* Game Section */}
-        <section 
-          data-game-section
-          className="min-h-screen py-20 px-4 flex flex-col items-center justify-center relative"
-        >
-          <div className="absolute top-[20%] left-[15%] text-4xl opacity-40 animate-float">💝</div>
-          <div className="absolute top-[30%] right-[10%] text-4xl opacity-40 animate-float" style={{animationDelay: '1s'}}>💖</div>
-          <div className="absolute bottom-[25%] left-[10%] text-4xl opacity-40 animate-float" style={{animationDelay: '2s'}}>💗</div>
-          <div className="absolute bottom-[35%] right-[20%] text-4xl opacity-40 animate-float" style={{animationDelay: '1.5s'}}>💕</div>
+        <section className="game-section min-h-[80vh] py-20 px-4 flex flex-col items-center justify-center relative bg-[#fdf6e3] overflow-hidden">
+          {/* Decorative elements */}
+          <div className="absolute top-10 left-10 text-6xl opacity-20 rotate-12">🎮</div>
+          <div className="absolute bottom-10 right-10 text-6xl opacity-20 -rotate-12">🧩</div>
           
-          <div 
-            className={`text-center transition-all duration-1000 ${
-              showGameButton 
-                ? 'opacity-100 translate-y-0' 
-                : 'opacity-0 translate-y-12'
-            }`}
-          >
-            <h2 className="font-signature text-5xl md:text-7xl text-amber-900 mb-8">
+          <div className="game-content text-center relative z-10 bg-white/80 backdrop-blur-sm p-12 rounded-3xl shadow-retro border-4 border-[#8b5e3c] max-w-2xl">
+            <h2 className="font-signature text-6xl md:text-8xl text-[#5d4037] mb-6">
               Want to play a game?
             </h2>
-            <p className="font-handwriting text-2xl md:text-3xl text-amber-800 mb-12">
+            <p className="font-handwriting text-3xl md:text-4xl text-[#795548] mb-10">
               I made something special for you... 💕
             </p>
             
             <Link href="/game">
-              <button className="bg-pink-500 hover:bg-pink-600 text-white font-handwriting text-2xl md:text-3xl px-12 py-6 rounded-full shadow-2xl transition-all duration-300 hover:scale-110 animate-heartbeat border-4 border-pink-300">
+              <button className="bg-[#8b5e3c] hover:bg-[#6d4c41] text-[#fff9f0] font-handwriting text-3xl md:text-4xl px-12 py-4 rounded-full shadow-lg transition-all duration-300 hover:scale-110 border-2 border-[#a1887f] hover:shadow-xl">
                 Play Game! 🎮
               </button>
             </Link>
